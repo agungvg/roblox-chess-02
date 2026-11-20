@@ -257,13 +257,19 @@ local function spawnParadePiece(slot: number, delaySeconds: number)
 			model:PivotTo(startCf:Lerp(targetCf, alpha))
 			task.wait(1.6 / steps)
 		end
-		-- Price label above the pedestal
+		-- Price label above the pedestal. Adornee MUST be set explicitly:
+		-- a BillboardGui parented to a Model with no Adornee renders at
+		-- the world origin (0,0,0). Torso centre is at scale*0.25, so
+		-- the offset is scale*0.75 + 1.2 to stay scale+1.2 above the base.
 		local price = PieceData.priceWithMutation(def, mutation)
 		local billboard = Instance.new("BillboardGui")
 		billboard.Name = "PriceTag"
 		billboard.Size = UDim2.fromOffset(180, 54)
-		billboard.StudsOffsetWorldSpace = Vector3.new(0, def.scale + 1.2, 0)
+		billboard.StudsOffsetWorldSpace = Vector3.new(0, def.scale * 0.75 + 1.2, 0)
 		billboard.AlwaysOnTop = true
+		local primary = model.PrimaryPart
+		assert(primary, "parade piece has no PrimaryPart")
+		billboard.Adornee = primary
 		billboard.Parent = model
 		local label = Instance.new("TextLabel")
 		label.Size = UDim2.fromScale(1, 1)

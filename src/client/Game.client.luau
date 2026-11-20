@@ -5,6 +5,7 @@
 -- quests and upgrades panels. Every system must be visible in a still.
 
 local Players = game:GetService("Players")
+local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -41,7 +42,15 @@ local upgrades: { [string]: number } = {}
 local gui = Instance.new("ScreenGui")
 gui.Name = "ChessHUD"
 gui.ResetOnSpawn = false
+-- IgnoreGuiInset so the HUD is placed against the real topbar ourselves:
+-- with the default inset the top strip sat on the same line as Roblox's
+-- chat hint ("Chat '/?' or '/help'...") and the two texts overlapped.
+gui.IgnoreGuiInset = true
 gui.Parent = player:WaitForChild("PlayerGui")
+
+-- Top of the HUD in screen pixels: below the Roblox topbar (GetGuiInset)
+-- plus the chat input bar (~60px incl. margin).
+local TOP_Y = GuiService:GetGuiInset().Y + 60
 
 local function label(
 	parent: Instance,
@@ -95,7 +104,7 @@ end
 -- Top banner: the one-line formula + money -----------------------------------
 local topBar = Instance.new("Frame")
 topBar.Size = UDim2.new(1, 0, 0, 64)
-topBar.Position = UDim2.new(0, 0, 0, 0)
+topBar.Position = UDim2.new(0, 0, 0, TOP_Y)
 topBar.BackgroundColor3 = Color3.fromRGB(12, 10, 26)
 topBar.BackgroundTransparency = 0.15
 topBar.BorderSizePixel = 0
@@ -153,7 +162,7 @@ local function showBanner(title: string, subtitle: string, accent: Color3?)
 	TweenService:Create(
 		banner,
 		TweenInfo.new(FEEL.BannerInTime, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
-		{ Position = UDim2.new(0.15, 0, 0.09, 0) }
+		{ Position = UDim2.new(0.15, 0, 0, TOP_Y + 72) }
 	):Play()
 	task.delay(FEEL.BannerHoldTime, function()
 		TweenService:Create(
@@ -171,7 +180,7 @@ end
 -- Carrying indicator -----------------------------------------------------------
 local carryBar = Instance.new("Frame")
 carryBar.Size = UDim2.new(0.5, 0, 0, 36)
-carryBar.Position = UDim2.new(0.25, 0, 0, 76)
+carryBar.Position = UDim2.new(0.25, 0, 0, TOP_Y + 72)
 carryBar.BackgroundColor3 = Color3.fromRGB(255, 120, 60)
 carryBar.BorderSizePixel = 0
 carryBar.Visible = false
@@ -239,7 +248,7 @@ end)
 -- Quest panel (right side) ------------------------------------------------------
 local questPanel = Instance.new("Frame")
 questPanel.Size = UDim2.new(0, 260, 0, 300)
-questPanel.Position = UDim2.new(1, -272, 0, 80)
+questPanel.Position = UDim2.new(1, -272, 0, TOP_Y + 72)
 questPanel.BackgroundColor3 = Color3.fromRGB(12, 10, 26)
 questPanel.BackgroundTransparency = 0.2
 questPanel.BorderSizePixel = 0

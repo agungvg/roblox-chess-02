@@ -12,6 +12,10 @@ from PIL import Image, ImageDraw, ImageFont
 
 OUT = os.path.join(os.path.dirname(__file__), "..", "screenshots")
 W, H = 1280, 720
+# HUD top strip sits below the Roblox topbar + chat input (see
+# Game.client.luau TOP_Y = GetGuiInset().Y + 60; desktop inset is 36px,
+# so the strip starts at 96px, not at the very top).
+TOP_Y = 96
 
 BOLD = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 REG = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
@@ -86,11 +90,11 @@ def draw_board(d, x0, y0, sq, pieces):
 
 
 def top_bar(d, money="$83.2M", income="+$6.39M/s"):
-    d.rectangle([0, 0, W, 64], fill=INK)
-    d.text((W // 2, 12), "48 PIECES · 6 TYPES · 8 RARITIES · 8 MUTATIONS · 6 BOARDS · 6 EVENTS · CAPTURE · LOCK · REBIRTH",
+    d.rectangle([0, TOP_Y, W, TOP_Y + 64], fill=INK)
+    d.text((W // 2, TOP_Y + 12), "48 PIECES · 6 TYPES · 8 RARITIES · 8 MUTATIONS · 6 BOARDS · 6 EVENTS · CAPTURE · LOCK · REBIRTH",
            font=font(15), fill=(255, 220, 100), anchor="ma")
-    d.text((W // 2, 30), money, font=font(26), fill=GREEN, anchor="ma")
-    d.text((W // 2, 58), f"{income} · REBIRTH 2 · x7 · 12 PIECES · 31/48 CODEX",
+    d.text((W // 2, TOP_Y + 30), money, font=font(26), fill=GREEN, anchor="ma")
+    d.text((W // 2, TOP_Y + 58), f"{income} · REBIRTH 2 · x7 · 12 PIECES · 31/48 CODEX",
            font=font_r(13), fill=(200, 200, 220), anchor="ma")
 
 
@@ -106,7 +110,7 @@ def action_bar(d):
         d.text(((x + x + bw) // 2, y + 28), txt, font=font(15), fill=(255, 255, 255), anchor="mm")
 
 
-def banner(d, title, sub, color, y=76):
+def banner(d, title, sub, color, y=TOP_Y + 72):
     d.rounded_rectangle([W // 2 - 330, y, W // 2 + 330, y + 76], radius=12, fill=color)
     d.text((W // 2, y + 26), title, font=font(30), fill=(20, 12, 4), anchor="mm")
     d.text((W // 2, y + 58), sub, font=font(16), fill=(40, 24, 8), anchor="mm")
@@ -198,18 +202,18 @@ def shot3():
     d = ImageDraw.Draw(img)
     bg(d)
     top_bar(d, money="$41.7M", income="+$2.1M/s")
-    # rival board, left, with LOCKED tag
-    d.text((230, 100), "BIG LOU — LOCKED", font=font(20), fill=RED, anchor="ma")
+    # rival board, left, with LOCKED tag (below the top strip)
+    d.text((230, 170), "BIG LOU — LOCKED", font=font(20), fill=RED, anchor="ma")
     pieces = {(2, 2): ((220, 180, 90), ":-)", False), (4, 3): ((150, 100, 60), "^_^", False),
               (5, 5): ((90, 160, 255), "o_O", False), (6, 2): ((255, 210, 60), "B-)", True)}
-    draw_board(d, 60, 140, 40, pieces)
-    d.ellipse([380, 130, 420, 170], fill=RED)  # lock orb
-    d.text((400, 185), "LOCKED 23s", font=font(13), fill=RED, anchor="ma")
+    draw_board(d, 60, 200, 40, pieces)
+    d.ellipse([380, 190, 420, 230], fill=RED)  # lock orb
+    d.text((400, 245), "LOCKED 23s", font=font(13), fill=RED, anchor="ma")
     # player board, right, thief being whacked
-    d.text((900, 100), "YOUR BOARD", font=font(20), fill=GREEN, anchor="ma")
+    d.text((900, 170), "YOUR BOARD", font=font(20), fill=GREEN, anchor="ma")
     pieces2 = {(3, 5): ((220, 180, 90), ":-)", False), (4, 4): ((255, 210, 60), "B-)", True),
                (5, 4): ((255, 90, 200), ":-*", True), (2, 3): ((180, 90, 255), ">:)", False)}
-    draw_board(d, 700, 140, 40, pieces2)
+    draw_board(d, 700, 200, 40, pieces2)
     # thief pawn mid-whack + burst
     draw_piece(d, 760, 480, 60, (150, 100, 60), "X_X", crown=False)
     for k in range(8):
@@ -248,7 +252,7 @@ def shot4():
     # wave at the bottom
     d.polygon([(0, 640), (200, 600), (400, 640), (600, 600), (800, 640), (1000, 600), (1280, 640), (1280, 720), (0, 720)],
               fill=(40, 120, 220))
-    d.text((340, 230), "+$19.2M/s", font=font(22), fill=GREEN)
+    d.text((340, 270), "+$19.2M/s", font=font(22), fill=GREEN)
     d.text((700, 300), "+$3.8M", font=font(20), fill=GREEN)
     d.text((W // 2, 620), "NEXT: NIGHT RAID! in 24s — the Raccoon King is coming", font=font(16), fill=(255, 220, 100), anchor="ma")
     action_bar(d)

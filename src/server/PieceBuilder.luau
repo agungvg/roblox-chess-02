@@ -262,12 +262,18 @@ function PieceBuilder.build(def: PieceData.PieceDef, mutationIndex: number): Mod
 		ring.Parent = model
 	end
 
-	-- Rarity name tag (BillboardGui, readable in screenshots)
+	-- Rarity name tag (BillboardGui, readable in screenshots).
+	-- Adornee MUST be set explicitly: a BillboardGui parented to a Model
+	-- with no Adornee renders at the world origin (0,0,0), so every
+	-- piece's label piled on one spot in the middle of the board.
+	-- Torso centre sits at h*0.25, so the offset is h*0.75 + 0.8 to
+	-- keep the label h+0.8 above the base.
 	local tag = Instance.new("BillboardGui")
 	tag.Name = "NameTag"
 	tag.Size = UDim2.fromOffset(140, 44)
-	tag.StudsOffsetWorldSpace = Vector3.new(0, h + 0.8, 0)
+	tag.StudsOffsetWorldSpace = Vector3.new(0, h * 0.75 + 0.8, 0)
 	tag.AlwaysOnTop = true
+	tag.Adornee = torso
 	tag.Parent = model
 	local tagLabel = Instance.new("TextLabel")
 	tagLabel.Size = UDim2.fromScale(1, 1)

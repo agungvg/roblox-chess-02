@@ -104,6 +104,7 @@ local function buildRivalBoard(owner: string, ownerColor: Color3, center: Vector
 	tag.Size = UDim2.fromOffset(220, 60)
 	tag.StudsOffsetWorldSpace = Vector3.new(0, 7.5, 0)
 	tag.AlwaysOnTop = true
+	tag.Adornee = post
 	tag.Parent = post
 	local label = Instance.new("TextLabel")
 	label.Size = UDim2.fromScale(1, 1)
