@@ -37,7 +37,25 @@ export type PlayerState = {
 }
 
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
-local store = DataStoreService:GetDataStore(Config.DATASTORE_KEY)
+
+-- DataStore is unavailable in an unpublished Studio place (and can fail
+-- for other reasons at runtime). Never let that kill the module load:
+-- fall back to session-only data (saves just don't persist).
+local store: DataStore? = nil
+do
+	local ok, result = pcall(function()
+		return DataStoreService:GetDataStore(Config.DATASTORE_KEY)
+	end)
+	if ok then
+		store = result
+	else
+		warn(
+			"[ChessBrainrot] DataStore unavailable ("
+				.. tostring(result)
+				.. ") — running session-only, saves disabled."
+		)
+	end
+end
 
 local world: WorldBuilder.World
 local states: { [Player]: PlayerState } = {}
@@ -694,6 +712,10 @@ SelectRE.OnServerEvent:Connect(doSelect)
 -- Player lifecycle ------------------------------------------------------------
 local function loadState(player: Player): PlayerState
 	local state = newState()
+	if not store then
+		-- Session-only mode (DataStore unavailable): fresh state, no load.
+		return state
+	end
 	local ok, data = pcall(function()
 		return store:GetAsync("player_" .. player.UserId)
 	end)
@@ -712,6 +734,10 @@ end
 local function saveState(player: Player)
 	local state = states[player]
 	if not state then
+		return
+	end
+	if not store then
+		-- Session-only mode (DataStore unavailable): nothing to persist.
 		return
 	end
 	pcall(function()
